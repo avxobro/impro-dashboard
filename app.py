@@ -3,7 +3,7 @@ from flask import Flask, render_template, jsonify, request, send_from_directory
 from jinja2 import PackageLoader, Environment
 
 # Initialize Flask app
-app = Flask(__name__, 
+app = Flask(__name__,
            static_folder="static",
            template_folder="templates")
 
@@ -16,7 +16,14 @@ app.secret_key = os.environ.get("SESSION_SECRET", "placeholder_secret")
 from dotenv import load_dotenv
 load_dotenv()
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:naman@localhost:5432/INSOLU'
+# Get the database URL from environment or use default for local development
+database_url = os.environ.get('DATABASE_URL', 'postgresql://postgres:naman@localhost:5432/INSOLU')
+
+# Render uses postgres:// but SQLAlchemy requires postgresql://
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Import database models
@@ -87,11 +94,11 @@ def create_rfq():
     client_name = request.form.get('client_name')
     notes = request.form.get('notes')
     files = request.files.getlist('files')
-    
+
     # Generate RFQ number
     prefix = settings.RFQ_PREFIX
     year = settings.RFQ_YEAR
-    
+
     # Get the latest RFQ number to increment
     last_rfq = RFQ.query.order_by(RFQ.rfq_number.desc()).first()
     if last_rfq and last_rfq.rfq_number.startswith(f"{prefix}-{year}-"):
@@ -101,9 +108,9 @@ def create_rfq():
             seq_num = 1
     else:
         seq_num = 1
-    
+
     rfq_number = f"{prefix}-{year}-{seq_num:05d}"
-    
+
     # Create new RFQ
     new_rfq = RFQ(
         id=str(uuid.uuid4()),
@@ -112,17 +119,17 @@ def create_rfq():
         notes=notes,
         status=RFQStatus.DRAFT
     )
-    
+
     # Add to database
     db.session.add(new_rfq)
     db.session.commit()
-    
+
     # Process and save files
     if files:
         # Ensure upload directory exists
         upload_folder = "uploads"
         os.makedirs(upload_folder, exist_ok=True)
-        
+
         for file in files:
             if file and file.filename:
                 # Determine file type
@@ -137,13 +144,13 @@ def create_rfq():
                     file_type = FileType.IMAGE
                 else:
                     continue  # Skip unsupported file types
-                
+
                 # Save file
                 file_id = str(uuid.uuid4())
                 filename = secure_filename(file.filename)
                 file_path = os.path.join(upload_folder, f"{file_id}_{filename}")
                 file.save(file_path)
-                
+
                 # Create uploaded file record
                 uploaded_file = UploadedFile(
                     id=file_id,
@@ -153,11 +160,11 @@ def create_rfq():
                     file_path=file_path,
                     rfq_id=new_rfq.id
                 )
-                
+
                 db.session.add(uploaded_file)
-        
+
         db.session.commit()
-    
+
     return render_template(
         "data_extraction.html",
         title="Data Extraction",
@@ -179,24 +186,24 @@ def get_rfq_details(rfq_id):
 def process_rfq_documents(rfq_id):
     from services.document_processor import process_document
     import asyncio
-    
+
     # Get RFQ from database
     rfq = RFQ.query.get_or_404(rfq_id)
-    
+
     # Update status
     rfq.status = RFQStatus.PROCESSING
     db.session.commit()
-    
+
     # Process documents
     items = []
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    
+
     for file in rfq.files:
         try:
             # Process document asynchronously
             file_items = loop.run_until_complete(process_document(file.file_path, file.file_type))
-            
+
             # Add items to database
             for item in file_items:
                 db_item = ItemDetail(
@@ -210,30 +217,30 @@ def process_rfq_documents(rfq_id):
                 items.append(db_item)
         except Exception as e:
             return jsonify({"status": "error", "message": str(e)}), 500
-    
+
     # Update RFQ status
     rfq.status = RFQStatus.READY
     db.session.commit()
-    
+
     return jsonify({"status": "success", "items": [{"id": item.id, "name": item.name} for item in items]})
 
 @app.route("/rfq/<rfq_id>/items", methods=["PUT"])
 def update_rfq_items(rfq_id):
     # Get RFQ from database
     rfq = RFQ.query.get_or_404(rfq_id)
-    
+
     # Get updated items from request
     items_data = request.get_json()
-    
+
     if not items_data:
         print(f"Warning: No items data received in request")
         return jsonify({"status": "error", "message": "No items data provided"}), 400
-    
+
     print(f"Received {len(items_data)} items to update for RFQ {rfq_id}")
-    
+
     # Delete existing items
     ItemDetail.query.filter_by(rfq_id=rfq.id).delete()
-    
+
     # Add new items
     for item_data in items_data:
         item = ItemDetail(
@@ -244,11 +251,11 @@ def update_rfq_items(rfq_id):
             rfq_id=rfq.id
         )
         db.session.add(item)
-    
+
     # Update RFQ
     rfq.updated_at = datetime.datetime.utcnow()
     db.session.commit()
-    
+
     return jsonify({"status": "success", "message": f"Items updated successfully. Saved {len(items_data)} items."})
 
 # Basic error handlers
