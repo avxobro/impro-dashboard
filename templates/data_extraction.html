@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h5 class="card-title mb-0">RFQ: {{ rfq.rfq_number }}</h5>
+                <span class="badge bg-{{ 'primary' if rfq.status == 'draft' else 'success' if rfq.status == 'ready' else 'warning' if rfq.status == 'processing' else 'info' if rfq.status == 'sent' else 'secondary' }}">
+                    {{ rfq.status }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Client:</strong> {{ rfq.client_name }}</p>
+                        <p><strong>Created:</strong> {{ rfq.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong> {{ rfq.status }}</p>
+                        <p><strong>Last Updated:</strong> {{ rfq.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                </div>
+                
+                {% if rfq.notes %}
+                <div class="mb-3">
+                    <h6>Notes:</h6>
+                    <div class="card">
+                        <div class="card-body bg-light">
+                            {{ rfq.notes }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <h6>Uploaded Documents:</h6>
+                <div class="table-responsive mb-3">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>Type</th>
+                                <th>Uploaded</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if rfq.files %}
+                                {% for file in rfq.files %}
+                                <tr>
+                                    <td>{{ file.filename }}</td>
+                                    <td>{{ file.file_type }}</td>
+                                    <td>{{ file.upload_date.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No documents uploaded</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="/rfq/" class="btn btn-outline-secondary">Back to RFQs</a>
+                    <div>
+                        {% if rfq.status == 'draft' or rfq.status == 'ready' %}
+                        <button id="process-documents-btn" class="btn btn-primary" data-rfq-id="{{ rfq.id }}">
+                            Process Documents
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h5 class="card-title mb-0">Extracted Items</h5>
+                <button id="add-item-btn" class="btn btn-sm btn-primary">
+                    Add Item
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="items-container">
+                    {% if rfq.items %}
+                    <table id="items-table" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in rfq.items %}
+                            <tr data-item-id="{{ item.id }}">
+                                <td class="item-number">{{ loop.index }}</td>
+                                <td>
+                                    <input type="text" class="form-control item-name" value="{{ item.name }}" required>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control item-quantity" value="{{ item.quantity or 1 }}" min="1">
+                                </td>
+                                <td>
+                                    <textarea class="form-control item-description">{{ item.description or '' }}</textarea>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-danger delete-item-btn">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="alert alert-info">
+                        No items have been extracted yet. Process the documents or add items manually.
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                    <button id="save-items-btn" class="btn btn-success" data-rfq-id="{{ rfq.id }}">
+                        Save Items
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/data_extraction.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize data extraction page
+        initializeDataExtractionPage();
+        
+        // Check for message and show toast if available
+        var message = "{{ message|default('') }}";
+        if (message) {
+            showToast(message, 'success');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,757 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .email-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .email-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .template-selector {
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .template-selector:hover {
+        border-color: #e5e7eb;
+    }
+    
+    .template-selector.selected {
+        border-color: #4f46e5;
+        background-color: #eef2ff;
+    }
+    
+    .signature-preview {
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        white-space: pre-wrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Email Composer</h1>
+    <p class="mt-1 text-gray-600">Create and send inquiry emails to vendors</p>
+</div>
+
+<!-- Email Templates Section -->
+<div class="bg-white shadow-sm rounded-lg overflow-hidden mb-6">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">Email Templates</h2>
+        <p class="mt-1 text-sm text-gray-500">Country-specific email templates with proper incoterms</p>
+    </div>
+    
+    <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- US Template Card -->
+            <div class="template-selector rounded-lg overflow-hidden border border-gray-200 selected" data-country-code="US">
+                <div class="px-4 py-5 bg-white sm:p-6">
+                    <div class="flex items-center">
+                        <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/us.svg" alt="US" class="h-6 w-8 mr-2">
+                        <h3 class="text-lg font-medium text-gray-900">United States</h3>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Currency</span>
+                            <p class="text-sm text-gray-700">USD</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Incoterms</span>
+                            <p class="text-sm text-gray-700">FOB</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- China Template Card -->
+            <div class="template-selector rounded-lg overflow-hidden border border-gray-200" data-country-code="CN">
+                <div class="px-4 py-5 bg-white sm:p-6">
+                    <div class="flex items-center">
+                        <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/cn.svg" alt="China" class="h-6 w-8 mr-2">
+                        <h3 class="text-lg font-medium text-gray-900">China</h3>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Currency</span>
+                            <p class="text-sm text-gray-700">RMB</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Incoterms</span>
+                            <p class="text-sm text-gray-700">Ex-works</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- India Template Card -->
+            <div class="template-selector rounded-lg overflow-hidden border border-gray-200" data-country-code="IN">
+                <div class="px-4 py-5 bg-white sm:p-6">
+                    <div class="flex items-center">
+                        <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/in.svg" alt="India" class="h-6 w-8 mr-2">
+                        <h3 class="text-lg font-medium text-gray-900">India</h3>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Currency</span>
+                            <p class="text-sm text-gray-700">INR (GST inclusive)</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Incoterms</span>
+                            <p class="text-sm text-gray-700">Ex-works</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- UK Template Card -->
+            <div class="template-selector rounded-lg overflow-hidden border border-gray-200" data-country-code="GB">
+                <div class="px-4 py-5 bg-white sm:p-6">
+                    <div class="flex items-center">
+                        <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/gb.svg" alt="UK" class="h-6 w-8 mr-2">
+                        <h3 class="text-lg font-medium text-gray-900">United Kingdom</h3>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Currency</span>
+                            <p class="text-sm text-gray-700">GBP</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Incoterms</span>
+                            <p class="text-sm text-gray-700">DDP</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email Composition Section -->
+<div class="bg-white shadow-sm rounded-lg overflow-hidden mb-6">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">Email Composition</h2>
+        <p class="mt-1 text-sm text-gray-500">Generate and customize vendor inquiry emails</p>
+    </div>
+    
+    <div class="px-4 py-5 sm:p-6">
+        <form id="email-compose-form" class="space-y-6">
+            <!-- RFQ and Vendor Selection -->
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                <div>
+                    <label for="rfq-select" class="block text-sm font-medium text-gray-700">Select RFQ</label>
+                    <select id="rfq-select" name="rfq_id" class="mt-1 form-select" required>
+                        <option value="">Select an RFQ</option>
+                        {% for rfq in rfqs %}
+                        <option value="{{ rfq.id }}">{{ rfq.rfq_number }} - {{ rfq.client_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="vendor-select" class="block text-sm font-medium text-gray-700">Select Vendor</label>
+                    <select id="vendor-select" name="vendor_id" class="mt-1 form-select" required disabled>
+                        <option value="">Select a vendor</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Serial Number -->
+            <div>
+                <label for="serial-number" class="block text-sm font-medium text-gray-700">Serial Number (SL#)</label>
+                <div class="mt-1">
+                    <input type="number" name="serial" id="serial-number" class="form-input" min="1" value="1" required>
+                    <p class="mt-1 text-xs text-gray-500">Used in email subject: INQ# from SL #XX – RFQ to Vendor</p>
+                </div>
+            </div>
+            
+            <!-- Email Preview -->
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="text-sm font-medium text-gray-700 mb-2">Email Preview</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Subject:</label>
+                    <div id="email-subject-preview" class="p-2 bg-gray-50 border border-gray-200 rounded text-sm">
+                        Select an RFQ and vendor to preview email
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Body:</label>
+                    <div id="email-body-preview" class="p-3 bg-gray-50 border border-gray-200 rounded text-sm whitespace-pre-line h-60 overflow-y-auto">
+                        Select an RFQ and vendor to preview email
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" id="regenerate-email-btn" class="btn btn-secondary" disabled>
+                    <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Regenerate
+                </button>
+                
+                <button type="button" id="send-email-btn" class="btn btn-primary" disabled>
+                    <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                    Send Email
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Sent Emails Section -->
+<div class="bg-white shadow-sm rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">Sent Emails</h2>
+        <p class="mt-1 text-sm text-gray-500">Track your sent inquiries</p>
+    </div>
+    
+    <div class="overflow-x-auto">
+        {% if emails and emails|length > 0 %}
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RFQ</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sent</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for email in emails %}
+                <tr>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ email.rfq_id }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ email.vendor_id }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 max-w-md truncate">{{ email.subject }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                        {% if email.sent_at %}
+                        {{ email.sent_at.strftime('%b %d, %Y %H:%M') }}
+                        {% else %}
+                        Not sent
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        {% if email.status == 'draft' %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Draft</span>
+                        {% elif email.status == 'ready' %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Ready</span>
+                        {% elif email.status == 'sent' %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Sent</span>
+                        {% elif email.status == 'failed' %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Failed</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <button type="button" class="view-email-btn text-primary-600 hover:text-primary-900" data-email-id="{{ email.id }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </button>
+                        
+                        {% if email.status == 'draft' or email.status == 'ready' %}
+                        <button type="button" class="send-email-btn ml-3 text-green-600 hover:text-green-900" data-email-id="{{ email.id }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                        </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-8">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No emails sent yet</h3>
+            <p class="mt-1 text-sm text-gray-500">Create and send your first inquiry email using the form above.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Email Signature Information -->
+<div class="mt-8">
+    <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-900">Country-Specific Email Guidelines</h2>
+        </div>
+        
+        <div class="px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-base font-medium text-gray-900 mb-2">Email Signatures by Country</h3>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                        <div class="flex items-center mb-2">
+                            <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/us.svg" alt="US" class="h-5 w-7 mr-2">
+                            <h4 class="font-medium text-gray-900">United States</h4>
+                        </div>
+                        <div class="signature-preview text-gray-600">
+ProcureIQ Inc.
+Address: 123 Procurement St, New York, NY 10001
+Phone: +1-555-123-4567
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/cn.svg" alt="China" class="h-5 w-7 mr-2">
+                            <h4 class="font-medium text-gray-900">China</h4>
+                        </div>
+                        <div class="signature-preview text-gray-600">
+ProcureIQ Inc.
+China Office
+Phone: +86-555-123-4567
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-base font-medium text-gray-900 mb-2">Incoterms & Currency Guidelines</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/in.svg" alt="India" class="h-5 w-7 mr-2">
+                                <h4 class="font-medium text-gray-900">India</h4>
+                            </div>
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                <li>Currency: INR</li>
+                                <li>GST inclusive pricing</li>
+                                <li>Ex-works incoterms</li>
+                                <li>Request data sheets and weight</li>
+                                <li>Require genuine items assurance</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/gb.svg" alt="UK" class="h-5 w-7 mr-2">
+                                <h4 class="font-medium text-gray-900">United Kingdom</h4>
+                            </div>
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                <li>Currency: GBP</li>
+                                <li>DDP incoterms</li>
+                                <li>Use UK signature with local address</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 border-t border-gray-200 pt-6">
+                <img src="https://pixabay.com/get/g72bc9f5778d383952099318751800112dff31507e2dc2634cc5d208144081490375e62cc53ad1b51d17efb9da7cd2aa0aeeb403a3b1f2d88a59b9f2f5d56ce65_1280.jpg" alt="Business Email Communication" class="mx-auto rounded-lg shadow-sm" style="max-height: 250px;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email Preview Modal -->
+<div id="email-preview-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="fixed inset-0 bg-black opacity-50"></div>
+    <div class="bg-white rounded-lg overflow-hidden shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl z-10">
+        <div class="bg-primary-600 text-white px-4 py-3 flex justify-between items-center">
+            <h3 class="text-lg font-medium">Email Preview</h3>
+            <button type="button" class="text-white hover:text-gray-200" id="close-email-modal">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="px-4 py-3">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Subject:</label>
+                <div id="modal-email-subject" class="border border-gray-300 rounded-md p-2 bg-gray-50"></div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Body:</label>
+                <div id="modal-email-body" class="border border-gray-300 rounded-md p-3 bg-gray-50 h-60 overflow-y-auto whitespace-pre-line"></div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 flex justify-end">
+            <button type="button" class="mr-2 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" id="modal-close-btn">
+                Close
+            </button>
+            <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" id="modal-send-btn" data-email-id="">
+                Send Email
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Template selector functionality
+        const templateSelectors = document.querySelectorAll('.template-selector');
+        templateSelectors.forEach(selector => {
+            selector.addEventListener('click', function() {
+                // Remove selected class from all selectors
+                templateSelectors.forEach(s => s.classList.remove('selected'));
+                // Add selected class to this selector
+                this.classList.add('selected');
+                
+                // Update email preview if RFQ and vendor are selected
+                const rfqId = document.getElementById('rfq-select').value;
+                const vendorId = document.getElementById('vendor-select').value;
+                if (rfqId && vendorId) {
+                    regenerateEmail();
+                }
+            });
+        });
+        
+        // RFQ select change handler
+        const rfqSelect = document.getElementById('rfq-select');
+        rfqSelect.addEventListener('change', function() {
+            const vendorSelect = document.getElementById('vendor-select');
+            
+            if (this.value) {
+                // Enable vendor select and populate it
+                vendorSelect.disabled = false;
+                
+                // In a real implementation, we would fetch vendors for this RFQ
+                // For this demo, we'll just simulate with some options
+                vendorSelect.innerHTML = '<option value="">Select a vendor</option>';
+                
+                // This would be replaced with an API call to get vendors for this RFQ
+                fetch(`/vendors/match/${this.value}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch vendors for RFQ');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Create options for each vendor match
+                    const vendors = new Set();
+                    for (const itemId in data.item_vendor_matches) {
+                        const matches = data.item_vendor_matches[itemId];
+                        matches.forEach(match => {
+                            const vendor = match.vendor;
+                            if (!vendors.has(vendor.id)) {
+                                vendors.add(vendor.id);
+                                const option = document.createElement('option');
+                                option.value = vendor.id;
+                                option.textContent = `${vendor.name} (${vendor.location.country})`;
+                                option.setAttribute('data-country', vendor.location.country);
+                                vendorSelect.appendChild(option);
+                            }
+                        });
+                    }
+                    
+                    if (vendors.size === 0) {
+                        showToast('No vendors matched for this RFQ. Please use vendor matching first.', 'warning');
+                    }
+                })
+                .catch(error => {
+                    showToast(`Error: ${error.message}`, 'error');
+                    vendorSelect.innerHTML = '<option value="">Select a vendor</option>';
+                });
+            } else {
+                // Disable vendor select if no RFQ selected
+                vendorSelect.disabled = true;
+                vendorSelect.innerHTML = '<option value="">Select a vendor</option>';
+                
+                // Reset preview
+                document.getElementById('email-subject-preview').textContent = 'Select an RFQ and vendor to preview email';
+                document.getElementById('email-body-preview').textContent = 'Select an RFQ and vendor to preview email';
+                
+                // Disable buttons
+                document.getElementById('regenerate-email-btn').disabled = true;
+                document.getElementById('send-email-btn').disabled = true;
+            }
+        });
+        
+        // Vendor select change handler
+        const vendorSelect = document.getElementById('vendor-select');
+        vendorSelect.addEventListener('change', function() {
+            if (this.value) {
+                // Get country from selected option
+                const country = this.options[this.selectedIndex].getAttribute('data-country');
+                
+                // Auto-select template based on country
+                if (country) {
+                    const countryCode = getCountryCode(country);
+                    const templateSelector = document.querySelector(`.template-selector[data-country-code="${countryCode}"]`);
+                    if (templateSelector) {
+                        templateSelectors.forEach(s => s.classList.remove('selected'));
+                        templateSelector.classList.add('selected');
+                    }
+                }
+                
+                // Generate email preview
+                regenerateEmail();
+                
+                // Enable buttons
+                document.getElementById('regenerate-email-btn').disabled = false;
+                document.getElementById('send-email-btn').disabled = false;
+            } else {
+                // Reset preview
+                document.getElementById('email-subject-preview').textContent = 'Select an RFQ and vendor to preview email';
+                document.getElementById('email-body-preview').textContent = 'Select an RFQ and vendor to preview email';
+                
+                // Disable buttons
+                document.getElementById('regenerate-email-btn').disabled = true;
+                document.getElementById('send-email-btn').disabled = true;
+            }
+        });
+        
+        // Regenerate email button handler
+        const regenerateBtn = document.getElementById('regenerate-email-btn');
+        regenerateBtn.addEventListener('click', regenerateEmail);
+        
+        // Send email button handler
+        const sendEmailBtn = document.getElementById('send-email-btn');
+        sendEmailBtn.addEventListener('click', function() {
+            const rfqId = document.getElementById('rfq-select').value;
+            const vendorId = document.getElementById('vendor-select').value;
+            const serial = document.getElementById('serial-number').value;
+            
+            if (rfqId && vendorId) {
+                sendEmail(rfqId, vendorId, serial);
+            }
+        });
+        
+        // View email buttons
+        const viewEmailBtns = document.querySelectorAll('.view-email-btn');
+        viewEmailBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const emailId = this.getAttribute('data-email-id');
+                viewEmail(emailId);
+            });
+        });
+        
+        // Send email from table
+        const sendTableEmailBtns = document.querySelectorAll('.send-email-btn');
+        sendTableEmailBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const emailId = this.getAttribute('data-email-id');
+                if (emailId) {
+                    sendExistingEmail(emailId);
+                }
+            });
+        });
+        
+        // Email preview modal handlers
+        const closeModalBtns = document.querySelectorAll('#close-email-modal, #modal-close-btn');
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('email-preview-modal').classList.add('hidden');
+            });
+        });
+        
+        const modalSendBtn = document.getElementById('modal-send-btn');
+        modalSendBtn.addEventListener('click', function() {
+            const emailId = this.getAttribute('data-email-id');
+            if (emailId) {
+                sendExistingEmail(emailId);
+                document.getElementById('email-preview-modal').classList.add('hidden');
+            }
+        });
+        
+        // Helper function to regenerate email
+        function regenerateEmail() {
+            const rfqId = document.getElementById('rfq-select').value;
+            const vendorId = document.getElementById('vendor-select').value;
+            const serial = document.getElementById('serial-number').value;
+            const selectedTemplate = document.querySelector('.template-selector.selected');
+            
+            if (!rfqId || !vendorId) {
+                return;
+            }
+            
+            // Show loading state
+            document.getElementById('email-subject-preview').innerHTML = '<div class="animate-pulse bg-gray-300 h-5 rounded"></div>';
+            document.getElementById('email-body-preview').innerHTML = `
+                <div class="animate-pulse space-y-3">
+                    <div class="bg-gray-300 h-5 rounded"></div>
+                    <div class="bg-gray-300 h-5 rounded"></div>
+                    <div class="bg-gray-300 h-5 rounded w-3/4"></div>
+                    <div class="bg-gray-300 h-5 rounded"></div>
+                    <div class="bg-gray-300 h-5 rounded w-1/2"></div>
+                </div>
+            `;
+            
+            // Call API to generate email
+            fetch(`/emails/generate/${rfqId}/${vendorId}?serial=${serial}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to generate email');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Update preview
+                document.getElementById('email-subject-preview').textContent = data.email.subject;
+                document.getElementById('email-body-preview').textContent = data.email.body;
+                
+                // Store email ID for sending
+                sendEmailBtn.setAttribute('data-email-id', data.email.id);
+                
+                // Show success toast
+                showToast('Email generated successfully!', 'success');
+            })
+            .catch(error => {
+                // Show error and reset preview
+                showToast(`Error: ${error.message}`, 'error');
+                document.getElementById('email-subject-preview').textContent = 'Error generating email';
+                document.getElementById('email-body-preview').textContent = 'There was an error generating the email. Please try again.';
+            });
+        }
+        
+        // Helper function to send email
+        function sendEmail(rfqId, vendorId, serial) {
+            const emailId = document.getElementById('send-email-btn').getAttribute('data-email-id');
+            
+            if (emailId) {
+                sendExistingEmail(emailId);
+            } else {
+                // Generate and then send
+                fetch(`/emails/generate/${rfqId}/${vendorId}?serial=${serial}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to generate email');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    sendExistingEmail(data.email.id);
+                })
+                .catch(error => {
+                    showToast(`Error: ${error.message}`, 'error');
+                });
+            }
+        }
+        
+        // Helper function to send existing email
+        function sendExistingEmail(emailId) {
+            // Show loading state
+            const originalBtnText = sendEmailBtn.innerHTML;
+            sendEmailBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Sending...
+            `;
+            sendEmailBtn.disabled = true;
+            
+            // Call API to send email
+            fetch(`/emails/send/${emailId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to send email');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Show success toast
+                showToast('Email sent successfully!', 'success');
+                
+                // Reset form and refresh page after a delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            })
+            .catch(error => {
+                // Show error
+                showToast(`Error: ${error.message}`, 'error');
+                
+                // Reset button
+                sendEmailBtn.innerHTML = originalBtnText;
+                sendEmailBtn.disabled = false;
+            });
+        }
+        
+        // Helper function to view email details
+        function viewEmail(emailId) {
+            // Show loading
+            showToast('Loading email...', 'info');
+            
+            // Call API to get email details
+            fetch(`/emails/${emailId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch email details');
+                }
+                return response.json();
+            })
+            .then(email => {
+                // Update modal content
+                document.getElementById('modal-email-subject').textContent = email.subject;
+                document.getElementById('modal-email-body').textContent = email.body;
+                document.getElementById('modal-send-btn').setAttribute('data-email-id', email.id);
+                
+                // Show/hide send button based on email status
+                if (email.status === 'draft' || email.status === 'ready') {
+                    document.getElementById('modal-send-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('modal-send-btn').classList.add('hidden');
+                }
+                
+                // Show modal
+                document.getElementById('email-preview-modal').classList.remove('hidden');
+            })
+            .catch(error => {
+                showToast(`Error: ${error.message}`, 'error');
+            });
+        }
+        
+        // Helper function to convert country name to ISO code
+        function getCountryCode(country) {
+            const countryMap = {
+                'United States': 'US',
+                'USA': 'US',
+                'China': 'CN',
+                'India': 'IN',
+                'United Kingdom': 'GB',
+                'UK': 'GB'
+            };
+            
+            return countryMap[country] || 'US';  // Default to US if not found
+        }
+    });
+</script>
+{% endblock %}

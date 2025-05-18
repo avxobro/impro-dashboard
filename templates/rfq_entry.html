@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Create New Request for Quote (RFQ)</h5>
+            </div>
+            <div class="card-body">
+                <form action="/rfq/new" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="client_name" class="form-label">Client Name</label>
+                        <input type="text" class="form-control" id="client_name" name="client_name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="files" class="form-label">Upload Documents</label>
+                        <input class="form-control" type="file" id="files" name="files" multiple>
+                        <div class="form-text">
+                            Upload procurement documents (PDFs, Word docs, Excel files, images). These will be processed using AI to extract item details.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Supported File Types:</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-primary">PDF</span>
+                            <span class="badge bg-primary">DOCX</span>
+                            <span class="badge bg-primary">XLSX/XLS</span>
+                            <span class="badge bg-primary">JPG/JPEG</span>
+                            <span class="badge bg-primary">PNG</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/rfq/" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create RFQ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

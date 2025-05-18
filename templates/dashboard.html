@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Recent RFQs</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>RFQ Number</th>
+                                <th>Client</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if rfqs %}
+                                {% for rfq in rfqs %}
+                                <tr>
+                                    <td>{{ rfq.rfq_number }}</td>
+                                    <td>{{ rfq.client_name }}</td>
+                                    <td>{{ rfq.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'primary' if rfq.status == 'draft' else 'success' if rfq.status == 'ready' else 'warning' if rfq.status == 'processing' else 'info' if rfq.status == 'sent' else 'secondary' }}">
+                                            {{ rfq.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="/rfq/{{ rfq.id }}" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No RFQs found. <a href="/rfq/new">Create your first RFQ</a></td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/rfq/" class="btn btn-outline-primary">View All RFQs</a>
+                <a href="/rfq/new" class="btn btn-primary">Create New RFQ</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Recent Emails</h5>
+                <div class="alert alert-info">
+                    No recent email activities.
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/emails/" class="btn btn-outline-primary">View All Emails</a>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Featured Vendors</h5>
+                <div class="alert alert-info">
+                    No featured vendors yet.
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/vendors/" class="btn btn-outline-primary">View All Vendors</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">ProcureIQ AI Procurement System</h5>
+            </div>
+            <div class="card-body">
+                <p>Welcome to the ProcureIQ AI Procurement Automation System. This platform leverages artificial intelligence to streamline your procurement processes:</p>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-box p-3 border rounded">
+                            <h5><span data-feather="file-text"></span> Document Intelligence</h5>
+                            <p>Upload procurement documents and let AI extract key information automatically.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-box p-3 border rounded">
+                            <h5><span data-feather="users"></span> Vendor Matching</h5>
+                            <p>Find the best vendors for your procurement needs using our intelligent matching system.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-box p-3 border rounded">
+                            <h5><span data-feather="mail"></span> Smart Email Generation</h5>
+                            <p>Generate professional emails to vendors with country-specific templates and formats.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="/rfq/new" class="btn btn-lg btn-primary">Start New Procurement</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Highlight current nav item
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('#sidebarMenu .nav-link').forEach(link => {
+            if (currentPath === '/' && link.getAttribute('href') === '/') {
+                link.classList.add('active');
+            } else if (currentPath.startsWith(link.getAttribute('href')) && link.getAttribute('href') !== '/') {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

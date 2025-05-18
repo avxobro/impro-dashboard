@@ -1,0 +1,140 @@
+# ✅ Replit Software Build Request for AI-Driven Procurement Software
+
+**Project Name:**
+ProcureIQ™ AI Procurement Automation System
+
+**Language & Stack:**
+
+* Entire system must be built using **Python + FastAPI**
+* Use **Langchain + OpenAI + Azure Document Intelligence + Google Vision OCR**
+* Use **SMTP libraries** for intelligent email sending
+* UI can be built with **HTML + Tailwind CSS + minimal JS** connected to FastAPI
+* Developer must use Replit native tools wherever possible
+
+---
+
+## 🛠️ 1. RFQ Entry & Auto-Numbering
+
+* Client must manually upload RFQ files or manually enter RFQ data into the system dashboard
+* Files supported: PDF, DOCX, Excel, Image
+* No email receiving function required
+* System must generate unique RFQ number in format: INQ13QP-2025-00001
+* Save uploaded files and entered data in dashboard
+
+### Example RFQ Numbers:
+
+* INQ132517R → Client: Meghnaghat Power Edra BD
+* INQ132983R → Client: Crown Cement
+
+---
+
+## 🤖 2. Intelligent Data Extraction (AI-Powered)
+
+* System must use **AI + Google Vision OCR + Azure Document Intelligence + OpenAI** to analyze uploaded documents
+* Automatically detect what client is requesting
+* Present results in **clean, structured list** of item names, quantity, brand, size, model, etc.
+* Developer must design display in most intuitive and professional way
+
+### Advanced Extraction Logic:
+
+**1️⃣ PDF Documents:**
+
+* Detect “We require this item for...” section
+* Extract serial numbers, descriptions, model, type, size
+
+**2️⃣ Image Files:**
+
+* OCR to extract name, model number, serial, type, size, manufacturer
+
+**3️⃣ Multiple Items from Same Brand:**
+
+* Auto-create searchable smart box for brand
+* Display items with details + “Search” button
+* On click, open Google (or vendor API) search for brand + item + model
+* Allow bulk search for up to 100 items
+
+**4️⃣ Vendor Suggestions:**
+
+* Below each item, show suggested vendor data:
+
+  * Country
+  * Company
+  * Website
+  * Email
+* Allow client to select vendor → auto-prepare inquiry email with country-specific signature
+
+**5️⃣ Manual Correction Table:**
+
+* Display all extracted data for manual edit/add/delete
+* User must confirm before system proceeds
+
+---
+
+## 🔎 3. Vendor Discovery & Smart Matching
+
+* After extraction, pass item data to vendor discovery
+* System must identify suitable vendors based on:
+
+  * Product
+  * Country
+  * Brand history
+  * Performance
+  * Pricing consistency
+
+### Filtering Options:
+
+* Vendor Type: Authorized Distributor, Reseller, Stockist
+* Location: Country, City, Zip Code
+* AI-powered zip radius search: show vendors within X miles of Zip (USA example: 11040 NY)
+
+### Search must allow:
+
+* Single or multiple item search
+* Country-wise, city-wise, zip-code wise
+* Dropdown zip codes provided by AI
+* Zip to zip or city to city in miles → show matching vendors
+
+### Subscriptions:
+
+* Developer must recommend best vendor search API subscriptions to integrate
+
+  * Suggested APIs: ThomasNet (via Apify), Alibaba Open API, Veridion Supplier API
+  * System must work with dummy data if APIs not yet connected
+
+---
+
+## 📧 4. Inquiry Sending (Smart Email System)
+
+* Send inquiries one-by-one (not BCC)
+* Auto-insert RFQ + attachments
+* Auto-add country-specific email signature
+* Subject format:
+  `INQ# from SL #01 – RFQ to Vendor Company Name, Country Name`
+* Auto-generate inquiry template using extracted data + vendor details
+
+### Incoterms Logic:
+
+* China → RMB, Ex-works
+* India → INR, GST inclusive, Ex-works, data sheet, weight, genuine items assurance
+* UK → UK signature
+
+---
+
+## 🎨 General Developer Notes
+
+* Use **Python + FastAPI** for all logic
+* Replit must deliver **smartest, cleanest, modern UI/UX**
+* Developer must select **best color palette and codes** for a premium enterprise SaaS feel
+* System must be smooth, fast, intuitive on desktop + tablet
+* All modules must work fully with dummy data for demo purposes
+
+---
+
+## 🚫 Exclusion
+
+* No SMS feature is required
+* No email receiving functionality is required
+
+---
+
+# END OF REQUEST

@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .vendor-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .vendor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .match-score-high {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .match-score-medium {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .match-score-low {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+    
+    /* Range slider styling */
+    .range-slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 5px;
+        background: #e5e7eb;
+        outline: none;
+    }
+    
+    .range-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #4f46e5;
+        cursor: pointer;
+    }
+    
+    .range-slider::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #4f46e5;
+        cursor: pointer;
+        border: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Vendor Matching</h1>
+    <p class="mt-1 text-gray-600">Find the best suppliers for your procurement needs</p>
+</div>
+
+<!-- Vendor Search Section -->
+<div class="bg-white shadow-sm rounded-lg overflow-hidden mb-6">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">Vendor Search</h2>
+        <p class="mt-1 text-sm text-gray-500">Search for vendors by various criteria</p>
+    </div>
+    
+    <div class="px-4 py-5 sm:p-6">
+        <form id="vendor-search-form" class="space-y-6">
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <div class="sm:col-span-6">
+                    <label for="search-keywords" class="block text-sm font-medium text-gray-700">Keywords</label>
+                    <div class="mt-1">
+                        <input type="text" name="keywords" id="search-keywords" class="form-input" placeholder="Enter product, brand, or vendor keywords">
+                    </div>
+                </div>
+                
+                <div class="sm:col-span-2">
+                    <label for="search-country" class="block text-sm font-medium text-gray-700">Country</label>
+                    <div class="mt-1">
+                        <select id="search-country" name="country" class="form-select">
+                            <option value="">Any Country</option>
+                            <option value="US">United States</option>
+                            <option value="CN">China</option>
+                            <option value="IN">India</option>
+                            <option value="GB">United Kingdom</option>
+                            <option value="DE">Germany</option>
+                            <option value="JP">Japan</option>
+                            <option value="KR">South Korea</option>
+                            <option value="SG">Singapore</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="sm:col-span-2">
+                    <label for="search-city" class="block text-sm font-medium text-gray-700">City</label>
+                    <div class="mt-1">
+                        <input type="text" name="city" id="search-city" class="form-input" placeholder="Enter city name">
+                    </div>
+                </div>
+                
+                <div class="sm:col-span-2">
+                    <label for="search-vendor-type" class="block text-sm font-medium text-gray-700">Vendor Type</label>
+                    <div class="mt-1">
+                        <select id="search-vendor-type" name="vendor_type" class="form-select">
+                            <option value="">Any Type</option>
+                            <option value="authorized_distributor">Authorized Distributor</option>
+                            <option value="reseller">Reseller</option>
+                            <option value="stockist">Stockist</option>
+                            <option value="manufacturer">Manufacturer</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="sm:col-span-3">
+                    <label for="search-zip" class="block text-sm font-medium text-gray-700">Zip/Postal Code</label>
+                    <div class="mt-1">
+                        <input type="text" name="zip_code" id="search-zip" class="form-input" placeholder="Enter zip or postal code">
+                    </div>
+                </div>
+                
+                <div class="sm:col-span-3">
+                    <label for="radius-miles" class="block text-sm font-medium text-gray-700">Radius: <span id="radius-value">50</span> miles</label>
+                    <div class="mt-2">
+                        <input type="range" id="radius-miles" name="radius_miles" min="5" max="500" value="50" step="5" class="range-slider">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>5mi</span>
+                            <span>250mi</span>
+                            <span>500mi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button type="submit" class="btn btn-primary">
+                    <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Search Vendors
+                </button>
+            </div>
+        </form>
+        
+        <div id="search-results-container" class="mt-6">
+            <!-- Search results will be rendered here -->
+        </div>
+    </div>
+</div>
+
+<!-- RFQ Vendor Matching Section -->
+<div class="bg-white shadow-sm rounded-lg overflow-hidden mb-6">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
+        <div>
+            <h2 class="text-lg font-medium text-gray-900">Automatic Vendor Matching</h2>
+            <p class="mt-1 text-sm text-gray-500">Find the best vendors for your RFQ items</p>
+        </div>
+        
+        {% if request.query_params.get('rfq_id') %}
+        <button id="match-vendors" data-rfq-id="{{ request.query_params.get('rfq_id') }}" class="btn btn-primary">
+            <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Match Vendors
+        </button>
+        {% endif %}
+    </div>
+    
+    <div class="px-4 py-5 sm:p-6">
+        {% if request.query_params.get('rfq_id') %}
+        <div id="vendor-results-container">
+            <!-- Vendor matching results will be rendered here -->
+            <div class="text-center py-6">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">Click "Match Vendors" to begin</h3>
+                <p class="mt-1 text-sm text-gray-500">Our AI will find the best vendors for your RFQ items.</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        Select an RFQ to match vendors automatically. Our AI will analyze the items in your RFQ and suggest the most suitable vendors.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Vendor Database Overview -->
+<div class="bg-white shadow-sm rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">Vendor Database Overview</h2>
+    </div>
+    
+    <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {% for vendor in vendors %}
+            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm vendor-card">
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-primary-100 rounded-md p-3">
+                            <svg class="h-6 w-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">{{ vendor.name }}</dt>
+                                <dd>
+                                    <div class="text-lg font-medium text-gray-900">{{ vendor.location.country }}</div>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-500">Vendor Type</span>
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                {{ vendor.vendor_type.replace('_', ' ') }}
+                            </span>
+                        </div>
+                        
+                        <div class="mt-2 flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-500">Location</span>
+                            <span class="text-sm text-gray-900">
+                                {{ vendor.location.city or 'N/A' }} {% if vendor.location.zip_code %}({{ vendor.location.zip_code }}){% endif %}
+                            </span>
+                        </div>
+                        
+                        {% if vendor.performance %}
+                        <div class="mt-2 flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-500">Rating</span>
+                            <div class="flex items-center">
+                                <div class="flex text-yellow-400">
+                                    {% for i in range(5) %}
+                                        {% if i < (vendor.performance.quality_rating or 0)|int %}
+                                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
+                                        </svg>
+                                        {% else %}
+                                        <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
+                                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
+                                        </svg>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if vendor.specializations %}
+                    <div class="mt-4">
+                        <span class="text-sm font-medium text-gray-500">Specializations</span>
+                        <div class="mt-1 flex flex-wrap gap-1">
+                            {% for spec in vendor.specializations[:2] %}
+                            <span class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-800">{{ spec }}</span>
+                            {% endfor %}
+                            {% if vendor.specializations|length > 2 %}
+                            <span class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-800">+{{ vendor.specializations|length - 2 }} more</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if not vendors or vendors|length == 0 %}
+            <div class="sm:col-span-2 lg:col-span-4 text-center py-6">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No vendors available</h3>
+                <p class="mt-1 text-sm text-gray-500">Use the search feature to find vendors or connect vendor APIs.</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="mt-8 border-t border-gray-200 pt-6 text-center">
+            <img src="https://pixabay.com/get/g1a72b2a14acbf585c5691d5c33521fe8cad971ea983cc999d7aea2bc43565fe4e28068e9902304f179e55cf894a9c69a_1280.jpg" alt="Global Procurement Network" class="mx-auto rounded-lg shadow-sm max-w-full" style="max-height: 250px;">
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', path='/js/vendor_matching.js') }}"></script>
+{% endblock %}
